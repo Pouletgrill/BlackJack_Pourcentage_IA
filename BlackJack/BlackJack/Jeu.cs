@@ -55,21 +55,20 @@ namespace BlackJack
       {
          try
          {
-            LoadImage();
+            LoadCarte();
             MixCards();
          }
          catch (Exception es)
          {
-            MessageBox.Show("Erreur:\nLe document d'image \"Image_Carte\" n'est plus dans repertoire courent ou a été modifier.");
+            MessageBox.Show(es.Message.ToString());
             this.Close();
          }
       }
 
-      private void LoadImage()
+      private void LoadCarte()
       {
 
          //Création des objet cartes dans paquet
-         String[] file = Directory.GetFiles(@"Image_Carte", "*.PNG");
          int valeur = 1;
          for (int i = 0; i < 52; ++i)
          {
@@ -81,7 +80,7 @@ namespace BlackJack
             {
                valeur++;
             }
-            paquet.Add(new Carte(file[i], valeur));
+            paquet.Add(new Carte(null, valeur));
          }
 
       }
@@ -145,25 +144,23 @@ namespace BlackJack
 
       private void BTN_Commencer_Click(object sender, EventArgs e)
       {
+         BTN_Commencer.Visible = false;
          while (CompteurCarte < 4)
          {
             if (A_Qui_Le_Tour == 1)
             {
                AfficherUneCarte(CompteurCarte, J1);
                J1.CalculerStat(paquet, CompteurCarte);
-               LB_J1_Stats.Text = J1.GetStat().ToString() + "%";
                A_Qui_Le_Tour = 2;
             }
             else
             {
                AfficherUneCarte(CompteurCarte, J2);
                J2.CalculerStat(paquet, CompteurCarte);
-               LB_J2_Stats.Text = J2.GetStat().ToString() + "%";
                A_Qui_Le_Tour = 1;
             }
             CompteurCarte++;
-         }
-         BTN_Commencer.Visible = false;
+         }         
          ButtonRefresh();
          CheckFinPartie();
          if (J1.GetCpuLevel() > 0 && J2.GetCpuLevel() > 0)
@@ -173,86 +170,18 @@ namespace BlackJack
                JouerAi();
             }
          }
-         else if (J1.GetCpuLevel() > 0)
-         {
-            J1.CalculerStat(paquet, CompteurCarte);
-            LB_J1_Stats.Text = J1.GetStat().ToString() + "%";
-            J1.AIJoueEncore();
-            Jouer(1);
-            J1.CalculerStat(paquet, CompteurCarte);
-            LB_J1_Stats.Text = J1.GetStat().ToString() + "%";
-         }
       }
 
       private void ButtonRefresh()
       {
-         //Joueur1/////////////////////////////////////////
-         if (J1.GetCpuLevel() > 0)
-         {
-            BTN_Continuer_J1.Visible = false;
-            BTN_Arreter_J1.Visible = false;
-            BTN_J1_Details.Visible = true;
-         }
-         else if (J1.JoueEncore() && A_Qui_Le_Tour == 1)
-         {
-            BTN_Continuer_J1.Enabled = true;
-            BTN_Arreter_J1.Enabled = true;
-            BTN_Continuer_J2.Enabled = false;
-            BTN_Arreter_J2.Enabled = false;
-         }
-         else if (J2.JoueEncore() && J1.JoueEncore())
-         {
-            BTN_Continuer_J1.Enabled = false;
-            BTN_Arreter_J1.Enabled = false;
-            BTN_Continuer_J2.Enabled = true;
-            BTN_Arreter_J2.Enabled = true;
-         }
-         else if (!J1.JoueEncore())
-         {
-            BTN_Continuer_J1.Enabled = false;
-            BTN_Arreter_J1.Enabled = false;
-            if (J2.JoueEncore())
-            {
-               BTN_Continuer_J2.Enabled = true;
-               BTN_Arreter_J2.Enabled = true;
-            }
-         }
          //Si seulement le joueur 1 est un CPU
-         if (A_Qui_Le_Tour == 1 && !J1.JoueEncore() &&
-             J1.GetCpuLevel() > 0 && J2.JoueEncore())
-         {
-            BTN_Continuer_J2.Enabled = true;
-            BTN_Arreter_J2.Enabled = true;
+         if (A_Qui_Le_Tour == 1 && !J1.JoueEncore() && J2.JoueEncore())
+         {            
             A_Qui_Le_Tour = 2;
          }
-         //Joueur2/////////////////////////////////////////
-         if (J2.GetCpuLevel() > 0)
+         else if (A_Qui_Le_Tour == 2 && J1.JoueEncore() && !J2.JoueEncore()) //Ajout impromptu
          {
-            BTN_Continuer_J2.Visible = false;
-            BTN_Arreter_J2.Visible = false;
-            BTN_J2_Details.Visible = true;
-         }
-         else if (J2.JoueEncore() && A_Qui_Le_Tour == 2)
-         {
-            BTN_Continuer_J2.Enabled = true;
-            BTN_Arreter_J2.Enabled = true;
-         }
-         else if (J2.JoueEncore() && J1.JoueEncore())
-         {
-            BTN_Continuer_J1.Enabled = true;
-            BTN_Arreter_J1.Enabled = true;
-            BTN_Continuer_J2.Enabled = false;
-            BTN_Arreter_J2.Enabled = false;
-         }
-         else if (!J2.JoueEncore())
-         {
-            BTN_Continuer_J2.Enabled = false;
-            BTN_Arreter_J2.Enabled = false;
-            if (J1.JoueEncore())
-            {
-               BTN_Continuer_J1.Enabled = true;
-               BTN_Arreter_J1.Enabled = true;
-            }
+            A_Qui_Le_Tour = 1;
          }
       }
 
@@ -260,20 +189,16 @@ namespace BlackJack
       {
          Jouer(1);
          J1.CalculerStat(paquet, CompteurCarte);
-         LB_J1_Stats.Text = J1.GetStat().ToString() + "%";
       }
 
       private void BTN_Continuer_J2_Click(object sender, EventArgs e)
       {
          Jouer(2);
          J2.CalculerStat(paquet, CompteurCarte);
-         LB_J2_Stats.Text = J2.GetStat().ToString() + "%";
          J1.CalculerStat(paquet, CompteurCarte);
          J1.AIJoueEncore();
-         LB_J1_Stats.Text = J1.GetStat().ToString() + "%";
          if (J1.JoueEncore() && J1.GetCpuLevel() > 0)
          {
-            LB_J1_Stats.Text = J1.GetStat().ToString() + "%";
             Jouer(1);
          }
          else if (J1.GetCpuLevel() > 0 && !J1.JoueEncore())
@@ -289,7 +214,6 @@ namespace BlackJack
          J2.CalculerStat(paquet, CompteurCarte);
          if (A_Qui_Le_Tour == 1 && J1.JoueEncore() && J1.AIJoueEncore())
          {
-            LB_J1_Stats.Text = J1.GetStat().ToString() + "%";
             AfficherUneCarte(CompteurCarte, J1);
             CompteurCarte++;
             ButtonRefresh();
@@ -297,7 +221,6 @@ namespace BlackJack
          A_Qui_Le_Tour = 2;
          if (A_Qui_Le_Tour == 2 && J2.JoueEncore() && J2.AIJoueEncore())
          {
-            LB_J2_Stats.Text = J2.GetStat().ToString() + "%";
             AfficherUneCarte(CompteurCarte, J2);
             CompteurCarte++;
             ButtonRefresh();
@@ -333,51 +256,16 @@ namespace BlackJack
          CheckFinPartie();
       }
 
-      private void BTN_Arreter_J1_Click(object sender, EventArgs e)
-      {
-         J1.ArreteDeJouer();
-         ButtonRefresh();
-         CheckFinPartie();
-      }
-
-      private void BTN_Arreter_J2_Click(object sender, EventArgs e)
-      {
-         J2.ArreteDeJouer();
-         ButtonRefresh();
-         J1.CalculerStat(paquet, CompteurCarte);
-         LB_J1_Stats.Text = J1.GetStat().ToString() + "%";
-         while (J1.AIJoueEncore() && J1.GetCpuLevel() > 0)
-         {
-            J1.CalculerStat(paquet, CompteurCarte);
-            LB_J1_Stats.Text = J1.GetStat().ToString() + "%";
-            Jouer(1);
-            ButtonRefresh();
-            CheckFinPartie();
-         }
-         ButtonRefresh();
-         CheckFinPartie();
-      }
-
       private void CheckFinPartie()
       {
          if (J1.GetTotal() > LimitBlackjack)
          {
             J1.ArreteDeJouer();
-            LB_J1_Depasse.Visible = true;
-            LB_J1_Depasse.BringToFront();
-            LB_J1_Stats.Text = "0%";
-            BTN_Continuer_J1.Enabled = false;
-            BTN_Arreter_J1.Enabled = false;
             AfficherBlackJack("Gagnant!");
          }
          if (J2.GetTotal() > LimitBlackjack)
          {
             J2.ArreteDeJouer();
-            LB_J2_Depasse.Visible = true;
-            LB_J2_Depasse.BringToFront();
-            LB_J2_Stats.Text = "0%";
-            BTN_Continuer_J2.Enabled = false;
-            BTN_Arreter_J2.Enabled = false;
             AfficherBlackJack("Gagnant!");
          }
          if (J1.GetTotal() == 21 || J2.GetTotal() == 21)
@@ -393,23 +281,15 @@ namespace BlackJack
 
       private void AfficherBlackJack(String message)
       {
-         BTN_Continuer_J1.Enabled = false;
-         BTN_Arreter_J1.Enabled = false;
-         BTN_Continuer_J2.Enabled = false;
-         BTN_Arreter_J2.Enabled = false;
          if (J1.GetTotal() < J2.GetTotal())
          {
             if (J2.GetTotal() <= LimitBlackjack)
             {
-               LB_J2_Depasse.Text = message;
-               LB_J2_Depasse.Visible = true;
-               LB_J2_Depasse.BringToFront();
+               //victoire ++ J2
             }
             else
             {
-               LB_J1_Depasse.Text = message;
-               LB_J1_Depasse.Visible = true;
-               LB_J1_Depasse.BringToFront();
+               //Bust J2
             }
             J1.ArreteDeJouer();
          }
@@ -417,57 +297,23 @@ namespace BlackJack
          {
             if (J1.GetTotal() <= LimitBlackjack)
             {
-               LB_J1_Depasse.Text = message;
-               LB_J1_Depasse.Visible = true;
-               LB_J1_Depasse.BringToFront();
+               //victoire ++ J1
             }
             else
             {
-               LB_J2_Depasse.Text = message;
-               LB_J2_Depasse.Visible = true;
-               LB_J2_Depasse.BringToFront();
+               //Bust J1
             }
             J2.ArreteDeJouer();
          }
          if (J1.GetTotal() == J2.GetTotal())
          {
-            LB_J2_Depasse.Text = "Partie Égale..";
-            LB_J2_Depasse.Visible = true;
-            LB_J2_Depasse.BringToFront();
-            LB_J1_Depasse.Text = "Partie Égale..";
-            LB_J1_Depasse.Visible = true;
-            LB_J1_Depasse.BringToFront();
-            J1.ArreteDeJouer();
-            J2.ArreteDeJouer();
+            //partie égal
          }
       }
 
       private void BTN_Quit_Click(object sender, EventArgs e)
       {
-         if (!J1.JoueEncore() || !J2.JoueEncore())
-         {
-            this.Close();
-         }
-         else
-         {
-            DialogResult result1 = MessageBox.Show("Voulez-vous vraiment quitter le Jeu ?",
-            "Fermeture du jeu..",
-            MessageBoxButtons.YesNo);
-            if (result1 == System.Windows.Forms.DialogResult.Yes)
-            {
-               this.Close();
-            }
-         }
+         this.Close();
       }
-      private void BTN_J1_Details_Click(object sender, EventArgs e)
-      {
-         MessageBox.Show(J1.AfficherDetails());
-      }
-
-      private void BTN_J2_Details_Click(object sender, EventArgs e)
-      {
-         MessageBox.Show(J2.AfficherDetails());
-      }
-
    }
 }
