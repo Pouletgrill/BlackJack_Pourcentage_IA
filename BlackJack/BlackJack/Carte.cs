@@ -29,6 +29,10 @@ namespace BlackJack
          path_ = Path;
          valeur_ = Valeur;
       }
+      public Carte(int Valeur)
+      {
+          valeur_ = Valeur;
+      }
 
       public void SetValeur(int Valeur)
       {
