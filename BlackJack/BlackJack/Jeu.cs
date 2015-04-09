@@ -103,10 +103,14 @@ namespace BlackJack
                             }
                         }
                     }
-                }                
+                }
+                textBox1.Text += "[" + pourcentage.ToString() + "] " + ScoreJ1[pourcentage - POURCENTSTART].ToString() + "\t J1 \r\n" +
+                "[" + pourcentage.ToString() + "] " + ScoreJ2[pourcentage - POURCENTSTART].ToString() + "\t J2 \r\n" +
+                "~*~\r\n";
             }
             BTN_Commencer.Visible = true;
             MessageBox.Show("Fini");
+           
         }
 
         private void LoadCarte()
