@@ -21,6 +21,7 @@ namespace BlackJack
         List<Carte> paquet = new List<Carte>();
         List<int> ScoreJ1 = new List<int>();
         List<int> ScoreJ2 = new List<int>();
+        List<int> ScoreNull = new List<int>();
         //Point CarteJ1 = new Point(15, 100);
         //Point CarteJ2 = new Point(523, 100);
         Joueur J1;
@@ -30,6 +31,7 @@ namespace BlackJack
         const int POURCENTSTOP = 80;
         int A_Qui_Le_Tour = 1;
         int CompteurCarte = 0;
+        bool finFinal = false;
 
         //const int CarteHeight = 127;
         //const int CarteWidth = 88;
@@ -49,21 +51,26 @@ namespace BlackJack
 
         private void AutomaticAiLogic()
         {
+            ScoreJ1.Clear();
+            ScoreJ2.Clear();
+            ScoreNull.Clear();
             for (int i = POURCENTSTART; i <= POURCENTSTOP; i++)
             {
                 pourcentage = i;
+                ScoreJ1.Add(0);
+                ScoreJ2.Add(0);
+                ScoreNull.Add(0);
                 for (int j = 0; j < 1000/*Doit etre 1000*/; j++)
                 {
-                    for (int k = 1; k <= 3; k++)
+                    for (int k = 0; k < 3; k++)
                     {
-                        ScoreJ1.Add(0);
-                        ScoreJ2.Add(0);
+                        finFinal = false;
                         J1 = new Joueur(i, true, "J1");
-                        if (k == 1)
+                        if (k == 1 - 1)
                             J2 = new Joueur(50, true, "J2");
-                        else if (k == 2)
+                        else if (k == 2 - 1)
                             J2 = new Joueur(65, true, "J2");
-                        else if (k == 3)
+                        else if (k == 3 - 1)
                             J2 = new Joueur(80, true, "J2");
                         try
                         {
@@ -102,15 +109,18 @@ namespace BlackJack
                                 JouerAi();
                             }
                         }
+                        ButtonRefresh();
+                        CheckFinPartie();
                     }
                 }
-                textBox1.Text += "[" + pourcentage.ToString() + "] " + ScoreJ1[pourcentage - POURCENTSTART].ToString() + "\t J1 \r\n" +
-                "[" + pourcentage.ToString() + "] " + ScoreJ2[pourcentage - POURCENTSTART].ToString() + "\t J2 \r\n" +
+                textBox1.Text += "[" + pourcentage.ToString() + "] " + ScoreJ1[pourcentage - POURCENTSTART].ToString() + " J1 \r\n" +
+                "[" + pourcentage.ToString() + "] " + ScoreJ2[pourcentage - POURCENTSTART].ToString() + " J2 \r\n" +
+                "[" + pourcentage.ToString() + "] " + ScoreNull[pourcentage - POURCENTSTART].ToString() + " null \r\n" +
                 "~*~\r\n";
             }
             BTN_Commencer.Visible = true;
             MessageBox.Show("Fini");
-           
+
         }
 
         private void LoadCarte()
@@ -261,25 +271,24 @@ namespace BlackJack
 
         private void CheckFinPartie()
         {
-            if (J1.GetTotal() > LimitBlackjack)
+            if (J1.GetTotal() > LimitBlackjack && !finFinal)
             {
                 J1.ArreteDeJouer();
                 AfficherBlackJack("Gagnant!");
             }
-            if (J2.GetTotal() > LimitBlackjack)
+            if (J2.GetTotal() > LimitBlackjack && !finFinal)
             {
                 J2.ArreteDeJouer();
                 AfficherBlackJack("Gagnant!");
             }
-            if (J1.GetTotal() == 21 || J2.GetTotal() == 21)
+            if ((J1.GetTotal() == 21 || J2.GetTotal() == 21) && !finFinal)
             {
                 AfficherBlackJack("BlackJack!");
             }
-            else if (!J1.JoueEncore() && !J2.JoueEncore())
+            else if (!J1.JoueEncore() && !J2.JoueEncore() && !finFinal)
             {
                 AfficherBlackJack("Gagnant!");
             }
-
         }
 
         private void AfficherBlackJack(String message)
@@ -290,11 +299,13 @@ namespace BlackJack
                 {
                     //victoire ++ J2
                     ScoreJ2[pourcentage - POURCENTSTART] += 1;
+                    finFinal = true;
                 }
                 else
                 {
                     //Bust J2
                     ScoreJ1[pourcentage - POURCENTSTART] += 1;
+                    finFinal = true;
                 }
                 J1.ArreteDeJouer();
             }
@@ -304,11 +315,13 @@ namespace BlackJack
                 {
                     //victoire ++ J1
                     ScoreJ1[pourcentage - POURCENTSTART] += 1;
+                    finFinal = true;
                 }
                 else
                 {
                     //Bust J1
                     ScoreJ2[pourcentage - POURCENTSTART] += 1;
+                    finFinal = true;
                 }
                 J2.ArreteDeJouer();
             }
@@ -316,6 +329,8 @@ namespace BlackJack
             {
                 //partie égal
                 //MessageBox.Show(pourcentage.ToString() + " Partie égal");
+                ScoreNull[pourcentage - POURCENTSTART] += 1;
+                finFinal = true;
             }
         }
 
