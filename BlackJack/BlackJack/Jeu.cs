@@ -18,6 +18,7 @@ namespace BlackJack
 {
     public partial class Jeu : Form
     {
+       int x = 0;
         List<Carte> paquet = new List<Carte>();
         List<int> ScoreJ1 = new List<int>();
         List<int> ScoreJ2 = new List<int>();
@@ -54,13 +55,13 @@ namespace BlackJack
             ScoreJ1.Clear();
             ScoreJ2.Clear();
             ScoreNull.Clear();
-            for (int i = POURCENTSTART; i <= POURCENTSTOP; i++)
+            for (int i = POURCENTSTART; i <= POURCENTSTOP; i += 5 )
             {
                 pourcentage = i;
                 ScoreJ1.Add(0);
                 ScoreJ2.Add(0);
                 ScoreNull.Add(0);
-                for (int j = 0; j < 1000/*Doit etre 1000*/; j++)
+                for (int j = 0; j < 10000/*Doit etre 1000*/; j++)
                 {
                     for (int k = 0; k < 3; k++)
                     {
@@ -113,10 +114,12 @@ namespace BlackJack
                         CheckFinPartie();
                     }
                 }
-                textBox1.Text += "[" + pourcentage.ToString() + "] " + ScoreJ1[pourcentage - POURCENTSTART].ToString() + " J1 \r\n" +
-                "[" + pourcentage.ToString() + "] " + ScoreJ2[pourcentage - POURCENTSTART].ToString() + " J2 \r\n" +
-                "[" + pourcentage.ToString() + "] " + ScoreNull[pourcentage - POURCENTSTART].ToString() + " null \r\n" +
-                "~*~\r\n";
+                //textBox1.Text += "[" + pourcentage.ToString() + "] " + ScoreJ1[x].ToString() + " J1 \r\n" +
+                //"[" + pourcentage.ToString() + "] " + ScoreJ2[x].ToString() + " J2 \r\n" +
+                //"[" + pourcentage.ToString() + "] " + ScoreNull[x].ToString() + " null \r\n" +
+                //"~*~\r\n";
+                textBox1.Text += "[" + pourcentage.ToString() + "] " + ScoreJ1[x].ToString() + " J1 " + ScoreJ2[x].ToString() + " J2 " + ScoreNull[x].ToString() + " Null \r\n";
+                x++;
             }
             BTN_Commencer.Visible = true;
             MessageBox.Show("Fini");
@@ -298,13 +301,13 @@ namespace BlackJack
                 if (J2.GetTotal() <= LimitBlackjack)
                 {
                     //victoire ++ J2
-                    ScoreJ2[pourcentage - POURCENTSTART] += 1;
+                    ScoreJ2[x] += 1;
                     finFinal = true;
                 }
                 else
                 {
                     //Bust J2
-                    ScoreJ1[pourcentage - POURCENTSTART] += 1;
+                    ScoreJ1[x] += 1;
                     finFinal = true;
                 }
                 J1.ArreteDeJouer();
@@ -314,13 +317,13 @@ namespace BlackJack
                 if (J1.GetTotal() <= LimitBlackjack)
                 {
                     //victoire ++ J1
-                    ScoreJ1[pourcentage - POURCENTSTART] += 1;
+                    ScoreJ1[x] += 1;
                     finFinal = true;
                 }
                 else
                 {
                     //Bust J1
-                    ScoreJ2[pourcentage - POURCENTSTART] += 1;
+                    ScoreJ2[x] += 1;
                     finFinal = true;
                 }
                 J2.ArreteDeJouer();
@@ -329,7 +332,7 @@ namespace BlackJack
             {
                 //partie égal
                 //MessageBox.Show(pourcentage.ToString() + " Partie égal");
-                ScoreNull[pourcentage - POURCENTSTART] += 1;
+                ScoreNull[x] += 1;
                 finFinal = true;
             }
         }
