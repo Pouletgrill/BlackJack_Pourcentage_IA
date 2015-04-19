@@ -18,7 +18,7 @@ namespace BlackJack
 {
     public partial class Jeu : Form
     {
-       int x = 0;
+        int x = 0;
         List<Carte> paquet = new List<Carte>();
         List<int> ScoreJ1 = new List<int>();
         List<int> ScoreJ2 = new List<int>();
@@ -52,75 +52,81 @@ namespace BlackJack
 
         private void AutomaticAiLogic()
         {
+            string resultat = string.Empty;
             ScoreJ1.Clear();
             ScoreJ2.Clear();
             ScoreNull.Clear();
-            for (int i = POURCENTSTART; i <= POURCENTSTOP; i += 5 )
+            for (int q = 0; q < 3; q++)
             {
-                pourcentage = i;
-                ScoreJ1.Add(0);
-                ScoreJ2.Add(0);
-                ScoreNull.Add(0);
-                for (int j = 0; j < 10000/*Doit etre 1000*/; j++)
+                for (int i = POURCENTSTART; i <= POURCENTSTOP; i += 5)
                 {
-                    for (int k = 0; k < 3; k++)
+                    x = 0;
+                    pourcentage = i;
+                    ScoreJ1.Add(0);
+                    ScoreJ2.Add(0);
+                    ScoreNull.Add(0);
                     {
-                        finFinal = false;
-                        J1 = new Joueur(i, true, "J1");
-                        if (k == 1 - 1)
-                            J2 = new Joueur(50, true, "J2");
-                        else if (k == 2 - 1)
-                            J2 = new Joueur(65, true, "J2");
-                        else if (k == 3 - 1)
-                            J2 = new Joueur(80, true, "J2");
-                        try
+                        for (int k = 0; k < 3; k++)
                         {
-                            LoadCarte();
-                            MixCards();
-                        }
-                        catch (Exception es)
-                        {
-                            MessageBox.Show(es.Message.ToString());
-                            this.Close();
-                        }
+                            finFinal = false;
+                            J1 = new Joueur(i, true, "J1");
+                            if (k == 1 - 1)
+                                J2 = new Joueur(50, true, "J2");
+                            else if (k == 2 - 1)
+                                J2 = new Joueur(65, true, "J2");
+                            else if (k == 3 - 1)
+                                J2 = new Joueur(80, true, "J2");
+                            try
+                            {
+                                LoadCarte();
+                                MixCards();
+                            }
+                            catch (Exception es)
+                            {
+                                MessageBox.Show(es.Message.ToString());
+                                this.Close();
+                            }
 
-                        BTN_Commencer.Visible = false;
-                        while (CompteurCarte < 4)
-                        {
-                            if (A_Qui_Le_Tour == 1)
+                            BTN_Commencer.Visible = false;
+                            while (CompteurCarte < 4)
                             {
-                                AfficherUneCarte(CompteurCarte, J1);
-                                J1.CalculerStat(paquet, CompteurCarte);
-                                A_Qui_Le_Tour = 2;
+                                if (A_Qui_Le_Tour == 1)
+                                {
+                                    AfficherUneCarte(CompteurCarte, J1);
+                                    J1.CalculerStat(paquet, CompteurCarte);
+                                    A_Qui_Le_Tour = 2;
+                                }
+                                else
+                                {
+                                    AfficherUneCarte(CompteurCarte, J2);
+                                    J2.CalculerStat(paquet, CompteurCarte);
+                                    A_Qui_Le_Tour = 1;
+                                }
+                                CompteurCarte++;
                             }
-                            else
+                            ButtonRefresh();
+                            CheckFinPartie();
+                            if (J1.GetCpuLevel() > 0 && J2.GetCpuLevel() > 0)
                             {
-                                AfficherUneCarte(CompteurCarte, J2);
-                                J2.CalculerStat(paquet, CompteurCarte);
-                                A_Qui_Le_Tour = 1;
+                                while (J1.JoueEncore() || J2.JoueEncore())
+                                {
+                                    JouerAi();
+                                }
                             }
-                            CompteurCarte++;
+                            ButtonRefresh();
+                            CheckFinPartie();
                         }
-                        ButtonRefresh();
-                        CheckFinPartie();
-                        if (J1.GetCpuLevel() > 0 && J2.GetCpuLevel() > 0)
-                        {
-                            while (J1.JoueEncore() || J2.JoueEncore())
-                            {
-                                JouerAi();
-                            }
-                        }
-                        ButtonRefresh();
-                        CheckFinPartie();
                     }
+                    //textBox1.Text += "[" + pourcentage.ToString() + "] " + ScoreJ1[x].ToString() + " J1 \r\n" +
+                    //"[" + pourcentage.ToString() + "] " + ScoreJ2[x].ToString() + " J2 \r\n" +
+                    //"[" + pourcentage.ToString() + "] " + ScoreNull[x].ToString() + " null \r\n" +
+                    //"~*~\r\n";
+                    resultat += "[" + pourcentage.ToString() + "] " + ScoreJ1[x].ToString() + " J1 " + ScoreJ2[x].ToString() + " J2 " + ScoreNull[x].ToString() + " Null \r\n";
+                    x++;
                 }
-                //textBox1.Text += "[" + pourcentage.ToString() + "] " + ScoreJ1[x].ToString() + " J1 \r\n" +
-                //"[" + pourcentage.ToString() + "] " + ScoreJ2[x].ToString() + " J2 \r\n" +
-                //"[" + pourcentage.ToString() + "] " + ScoreNull[x].ToString() + " null \r\n" +
-                //"~*~\r\n";
-                textBox1.Text += "[" + pourcentage.ToString() + "] " + ScoreJ1[x].ToString() + " J1 " + ScoreJ2[x].ToString() + " J2 " + ScoreNull[x].ToString() + " Null \r\n";
-                x++;
+                resultat += "\r\n***\r\n";
             }
+            textBox1.Text = resultat;
             BTN_Commencer.Visible = true;
             MessageBox.Show("Fini");
 
