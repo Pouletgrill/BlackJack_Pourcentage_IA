@@ -65,6 +65,7 @@ namespace BlackJack
                     ScoreJ1.Add(0);
                     ScoreJ2.Add(0);
                     ScoreNull.Add(0);
+                    for (int j = 0; j < 100000/*Doit etre 1000*/; j++)
                     {
                         for (int k = 0; k < 3; k++)
                         {
